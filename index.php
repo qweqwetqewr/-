@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Регистрация и Вход</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            background-color: #f4f4f4;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            width: 100%;
+            max-width: 400px;
+        }
+
+        .form-container {
+            display: none;
+        }
+
+        .form-container.active {
+            display: block;
+        }
+
+        h2 {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            color: #555;
+        }
+
+        input[type="text"],
+        input[type="email"],
+        input[type="password"] {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        .switch-form {
+            text-align: center;
+            margin-top: 15px;
+        }
+
+        .switch-form a {
+            color: #007bff;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        .switch-form a:hover {
+            text-decoration: underline;
+        }
+
+        .error {
+            color: red;
+            font-size: 14px;
+            margin-top: 5px;
+        }
+    </style>
+</head>
+<body>
+    <header>
+	<h1>
+        <?php
+            // Инициализация сессии для работы с сессионными переменными
+            session_start();
+
+            // Проверка наличия сообщения об ошибке в сессии
+            if (isset($_SESSION['error'])) {
+                // Вывод ошибки красным цветом
+                echo "<pre STYLE='color: red'>{$_SESSION['error']}</pre>";
+                // Удаление ошибки после показа
+                unset($_SESSION['error']);
+            }
+
+            // Проверка авторизации пользователя
+            if (isset($_SESSION['user'])) 
+        ?>
+        </h1>
+	</header>
+	<div class="container">
+        <!-- Форма входа -->
+        <form action="auth.php" method="post">
+        <div id="loginForm" class="form-container active">
+            <h2>Вход в систему</h2>
+                <div class="form-group">
+                    <label for="loginEmail">Email:</label>
+                    <input type="email" id="loginEmail" name="email" required>
+                    <div class="error" id="loginEmailError"></div>
+                </div>
+                <div class="form-group">
+                    <label for="loginPassword">Пароль:</label>
+                    <input type="password" id="loginPassword" name="password" required>
+                    <div class="error" id="loginPasswordError"></div>
+                </div>
+                <button type="submit"><a href="adminpanel.html"></a>Войти</button>
+            </form>
+            <div class="switch-form">
+                Нет аккаунта? <a onclick="showRegisterForm()">Зарегистрироваться</a>
+            </div>
+        </div>
+        <!-- Форма для выхода из системы -->
+        <form action="logout.php" method="post">
+            <p><input type="submit" value="Выйти"></p>
+        </form>
+
+
+        <!-- Форма регистрации -->
+        <form action="reg.php" method="post">
+        <div id="registerForm" class="form-container">
+            <h2>Регистрация</h2>
+            <form id="register">
+                <div class="form-group">
+                    <label for="regName">Имя:</label>
+                    <input type="text" id="regName" name="name" required>
+                    <div class="error" id="regNameError"></div>
+                </div>
+                <div class="form-group">
+                    <label for="regEmail">Email:</label>
+                    <input type="email" id="regEmail" name="email" required>
+                    <div class="error" id="regEmailError"></div>
+                </div>
+                <div class="form-group">
+                    <label for="regPassword">Пароль:</label>
+                    <input type="password" id="regPassword" name="password" required>
+                    <div class="error" id="regPasswordError"></div>
+                </div>
+                <div class="form-group">
+                    <label for="regConfirmPassword">Подтвердите пароль:</label>
+                    <input type="password" id="regConfirmPassword" name="confirmPassword" required>
+                    <div class="error" id="regConfirmPasswordError"></div>
+                </div>
+                <button type="submit">Зарегистрироваться</button>
+            </form>
+            <div class="switch-form">
+                Уже есть аккаунт? <a onclick="showLoginForm()">Войти</a>
+            </div>
+        </div>
+    </div>
+    </form>
+
+    <script>
+        // Функции для переключения между формами
+        function showLoginForm() {
+            document.getElementById('loginForm').classList.add('active');
+            document.getElementById('registerForm').classList.remove('active');
+            clearErrors();
+        }
+
+        function showRegisterForm() {
+            document.getElementById('registerForm').classList.add('active');
+            document.getElementById('loginForm').classList.remove('active');
+            clearErrors();
+        }
+
+        // Функция для очистки ошибок
+        function clearErrors() {
+            const errorElements = document.querySelectorAll('.error');
+            errorElements.forEach(element => {
+                element.textContent = '';
+            });
+        }
+
+        // Обработка формы входа
+        document.getElementById('login').addEventListener('submit', function(e) {
+            e.preventDefault();
+            clearErrors();
+            
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+            let isValid = true;
+
+            // Базовая валидация
+            if (!email) {
+                document.getElementById('loginEmailError').textContent = 'Введите email';
+                isValid = false;
+            }
+
+            if (!password) {
+                document.getElementById('loginPasswordError').textContent = 'Введите пароль';
+                isValid = false;
+            }
+
+            if (isValid) {
+                // Отправка данных на сервер
+                console.log('Данные для входа:', { email, password });
+                alert('Вход выполнен успешно!');
+                // window.location.href = '/adminpanel.html'; // Перенаправление после успешного входа
+            }
+        });
+
+        // Обработка формы регистрации
+        document.getElementById('register').addEventListener('submit', function(e) {
+            e.preventDefault();
+            clearErrors();
+            
+            const name = document.getElementById('regName').value;
+            const email = document.getElementById('regEmail').value;
+            const password = document.getElementById('regPassword').value;
+            const confirmPassword = document.getElementById('regConfirmPassword').value;
+            let isValid = true;
+
+            // Валидация
+            if (!name) {
+                document.getElementById('regNameError').textContent = 'Введите имя';
+                isValid = false;
+            }
+
+            if (!email) {
+                document.getElementById('regEmailError').textContent = 'Введите email';
+                isValid = false;
+            } else if (!isValidEmail(email)) {
+                document.getElementById('regEmailError').textContent = 'Введите корректный email';
+                isValid = false;
+            }
+
+            if (!password) {
+                document.getElementById('regPasswordError').textContent = 'Введите пароль';
+                isValid = false;
+            } else if (password.length < 6) {
+                document.getElementById('regPasswordError').textContent = 'Пароль должен содержать минимум 6 символов';
+                isValid = false;
+            }
+
+            if (!confirmPassword) {
+                document.getElementById('regConfirmPasswordError').textContent = 'Подтвердите пароль';
+                isValid = false;
+            } else if (password !== confirmPassword) {
+                document.getElementById('regConfirmPasswordError').textContent = 'Пароли не совпадают';
+                isValid = false;
+            }
+
+            if (isValid) {
+                // Отправка данных на сервер
+                console.log('Данные для регистрации:', { name, email, password });
+                alert('Регистрация прошла успешно!');
+                showLoginForm(); // Переключаем на форму входа после успешной регистрации
+            }
+        });
+
+        // Функция для проверки email
+        function isValidEmail(email) {
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            return emailRegex.test(email);
+        }
+        
+        // Проверка входа (простая)
+        import { Redirect } from "react-router"
+
+const YourComponent = () => {
+
+  const [state, setState] = setState({ redirect: false })
+
+  // достаточно поменять значение state
+  // что бы произошел redirect
+
+  if (state.redirect) {
+    return <Redirect push to="/signup" />
+  }
+
+  return <div>adminpanel.html<div/>
+}
+    </script>
+</body>
+</html>

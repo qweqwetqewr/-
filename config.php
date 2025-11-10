@@ -1,13 +1,15 @@
 <?php
-if ($_SERVER["SERVER_NAME"] == '172.19.3.23') {
-    $dbhost = '172.19.3.23';
-    $dbuser = '';
-    $dbpassword = '';
-    $database = '';
-} else {
-    $dbhost = 'localhost';
-    $dbuser = 'demo';
-    $dbpassword = 'demo';
-    $database = 'demo';
+session_start();
+
+$host = 'infrastructure.mariadb:3306';
+$dbname = 'users_ft';
+$username = 'fedorov.m.a';
+$password = '7479';
+
+try {
+    $pdo = new PDO("mysql:host=$host;dbname=$dbname;charset=utf8", $username, $password);
+    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+} catch(PDOException $e) {
+    die("Ошибка подключения: " . $e->getMessage());
 }
 ?>
